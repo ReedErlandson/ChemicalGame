@@ -67,6 +67,7 @@ public class GameManager : MonoBehaviour {
 
 	public int waitForMolecules = 0;
 
+	public ParticleSystem breakBondParticle;
 	// Use this for initialization
 	void Start () {
 		instance = this;

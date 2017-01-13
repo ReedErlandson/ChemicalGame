@@ -4,12 +4,7 @@ using UnityEngine;
 
 public class Atom : MonoBehaviour {
 	public int atomType;
+	public ShapeRengine atomBorder;
 
-	void Start() {
-
-	}
-
-	void Update() {
-
-	}
+	public ShapeRengine playerBorder;
 }

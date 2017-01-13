@@ -8,6 +8,9 @@ public class Molecule : MonoBehaviour {
 	public GameObject[] atomBlueprints;
 	public GameObject atom1;
 	public GameObject atom2;
+
+	public Atom atom1script;
+	public Atom atom2script;
 	public List<Atom> atomList;
 	BoxCollider2D lineCollider;
 	public LineRenderer rengine;
@@ -78,6 +81,8 @@ public class Molecule : MonoBehaviour {
 		atom2 = Instantiate (atomBlueprints[1], this.transform) as GameObject;
 		atom1.GetComponent<CircleCollider2D> ().radius = 1.25f;
 		atom2.GetComponent<CircleCollider2D> ().radius = 1.25f;
+		atom1script = atom1.GetComponent<Atom> ();
+		atom2script = atom2.GetComponent<Atom> ();
 		setAtoms ();
 	}
 
@@ -91,14 +96,14 @@ public class Molecule : MonoBehaviour {
 			rengine.material.SetColor ("_Color", Color.white);
 			rengine.material.SetColor ("_EmissionColor", Color.white);
 			Vector3 tempLine = Vector3.Normalize(atom2.transform.position - atom1.transform.position);
-			float aTypeMod = 1f;
-			if (atom1.GetComponent<Atom>().atomType == 1) {
-				aTypeMod = 0.7f;
+			float aTypeMod = 1f * atom1script.atomBorder.wiggle;
+			if (atom1script.atomType == 1) {
+				aTypeMod = 0.7f * atom1script.atomBorder.wiggle;
 			}
 			Vector3 BondAnchor1 = atom1.transform.position + tempLine * GameManager.instance.bondXmod*aTypeMod;
-			aTypeMod = 1f;
-			if (atom2.GetComponent<Atom>().atomType == 1) {
-				aTypeMod = 0.7f;
+			aTypeMod = 1f * atom2script.atomBorder.wiggle;
+			if (atom2script.atomType == 1) {
+				aTypeMod = 0.7f * atom2script.atomBorder.wiggle;
 			}
 			Vector3 BondAnchor2 = atom2.transform.position - tempLine * GameManager.instance.bondXmod*aTypeMod;
 			BondAnchor1.z -= 1;
@@ -140,6 +145,13 @@ public class Molecule : MonoBehaviour {
 			GameManager.instance.resolveEnergy (this.transform.position, false);
 		}
 		isReacting = true;
+
+		GameManager.instance.breakBondParticle.transform.position = transform.position;
+		GameManager.instance.breakBondParticle.transform.rotation = transform.rotation;
+		ParticleSystem.ShapeModule shape = GameManager.instance.breakBondParticle.shape;
+		shape.box = new Vector3 (lineCollider.size.x, .1f, 0);
+		GameManager.instance.breakBondParticle.Emit (30); 
+
 		rengine.SetPositions (new Vector3[] {new Vector3 (0,0,0),new Vector3 (0,0,0)});
 		GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.match);
 		float scrubTime = 0;

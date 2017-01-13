@@ -4,12 +4,9 @@ using UnityEngine;
 
 public class Energy : MonoBehaviour {
 	public bool isReacting = false;
-	void Start() {
-
-	}
 
 	void Update() {
-
+		transform.Translate (Random.insideUnitCircle *Time.deltaTime/10);
 	}
 
 	public void endoMove(Vector3 targetPos) {
