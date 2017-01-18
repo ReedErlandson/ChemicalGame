@@ -15,7 +15,7 @@ public class Particle : MonoBehaviour {
 	}
 
 	IEnumerator wipeTimer() {
-		yield return new WaitForSeconds (GetComponent<ParticleSystem> ().main.duration);
+		yield return new WaitForSeconds (1);
 		Destroy (this.gameObject);
 	}
 }

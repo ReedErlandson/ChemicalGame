@@ -22,7 +22,7 @@ public class ShapeRengine : MonoBehaviour {
 		Renderer.endWidth = thickness;
 
 
-		if (transform.parent.GetComponent<ShapeRengine> () != null) {
+		if (transform.parent != null && transform.parent.GetComponent<ShapeRengine> () != null) {
 			offset = transform.parent.GetComponent<ShapeRengine> ().offset + Mathf.PI / 3;
 		}
 		List<Vector3> tempCoordsList = new List<Vector3> ();

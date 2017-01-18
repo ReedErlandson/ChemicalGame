@@ -164,7 +164,7 @@ public class Molecule : MonoBehaviour {
 		//get total curve area
 		//totalCurveArea = 1f;
 		totalCurveArea = (1/ (Mathf.PI * 2))* ((Mathf.PI * 2*(yBump*amplitude) + Mathf.Sin (Mathf.PI * 2)*amplitude));
-
+		yield return new WaitForSeconds (2);
 		while (scrubTime <= 1) {
 			scrubTime += Time.deltaTime/atomMoveTime;
 			float curveAdd = (Time.deltaTime/atomMoveTime) * amplitude*((Mathf.Cos (scrubTime*360*Mathf.Deg2Rad) + yBump));

@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviour {
 	public AudioSource managerSpeaker;
 	public AudioClip fizzle;
 	public AudioClip match;
-
+	public SpriteRenderer fade;
 	int energyIndex = 0;
 	public int currentPlayer = 0;
 	public int inactivePlayer = 1;
@@ -179,7 +179,6 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void moveEnergy() {
-		
 		foreach (GameObject aEn in energyObjList) {
 			aEn.GetComponent<Energy>().shakeMove();
 		}
@@ -204,8 +203,35 @@ public class GameManager : MonoBehaviour {
 		}
 		touchRengine.SetPositions (touchRenArr);
 	}
+	IEnumerator fadeIn(){
+		fade.enabled = true;
+		float t = 0; 
+		Color empty = new Color (0, 0, 0, 0);
+		Color full = new Color (0, 0, 0, .75f);
+		while (t < 1) {
+			t += Time.deltaTime*3;
+			fade.color = Color.Lerp (empty,full, t);
+			yield return null;
+		}
+		fade.color = full;
+	}
+
+	IEnumerator fadeOut(){
+		fade.enabled = true;
+		float t = 0; 
+		Color empty = new Color (0, 0, 0, 0);
+		Color full = new Color (0, 0, 0, .8f);
+		while (t < 1) {
+			t += Time.deltaTime*3;
+			fade.color = Color.Lerp (full,empty, t);
+			yield return null;
+		}
+		fade.color = empty;
+		fade.enabled = false;
+	}
 
 	void catalyseReaction() {
+		StartCoroutine (fadeIn ());
 		turnActive = false;
 		StartCoroutine ("fillTimer");
 		waitForMolecules = 0;
@@ -224,6 +250,7 @@ public class GameManager : MonoBehaviour {
 		List<Atom> endoAtomList = new List<Atom> ();
 
 		foreach (Molecule aMol in reactionMoleculeList) {
+			aMol.transform.position -= new Vector3 (0, 0, 6);
 			foreach (Atom anAtom in aMol.atomList) {
 				if (exoList.Contains(aMol)) {
 					exoAtomList.Add (anAtom);
@@ -290,8 +317,10 @@ public class GameManager : MonoBehaviour {
 		if (waitForMolecules <= 0) {
 			foreach (Molecule aMol in reactionMoleculeList) {
 				aMol.isReacting = false;
+				aMol.transform.position += new Vector3 (0, 0, 6);
 			}
 			changePlayer ();
+			StartCoroutine(fadeOut ());
 		}
 	}
 
