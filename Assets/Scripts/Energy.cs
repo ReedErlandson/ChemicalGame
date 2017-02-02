@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Energy : MonoBehaviour {
 	public bool isReacting = false;
+	public bool isTutEng = false;
 
 	void Update() {
 		transform.Translate (Random.insideUnitCircle *Time.deltaTime/10);
@@ -25,8 +26,13 @@ public class Energy : MonoBehaviour {
 			yield return null;
 		}
 		this.GetComponent<Rigidbody2D> ().isKinematic = false;
-		GameManager.instance.energyObjList.Remove (this.gameObject);
-		GameObject newParticle = Instantiate (GameManager.instance.energyParticle, targetPos, Quaternion.identity) as GameObject;
+		if (!isTutEng) {
+			GameManager.instance.energyObjList.Remove (this.gameObject);
+			GameObject newParticle = Instantiate (GameManager.instance.energyParticle, targetPos, Quaternion.identity) as GameObject;
+		} else {
+			TutorialManager.instance.energyObjList.Remove (this.gameObject);
+			GameObject newParticle = Instantiate (TutorialManager.instance.energyParticle, targetPos, Quaternion.identity) as GameObject;
+		}
 		Destroy (this.gameObject);
 	}
 
@@ -38,5 +44,9 @@ public class Energy : MonoBehaviour {
 			yRoll = Random.Range (-1f, 2f);
 		}
 		this.GetComponent<Rigidbody2D> ().AddForce (new Vector2 (xRoll*GameManager.instance.baseMotion*GameManager.instance.motionMultiplier*GameManager.instance.systemEnergy, yRoll*GameManager.instance.baseMotion*GameManager.instance.motionMultiplier*GameManager.instance.systemEnergy));
+	}
+
+	public void controlledMove(float fedX, float fedY) {
+		this.GetComponent<Rigidbody2D> ().AddForce (new Vector2 (fedX*100, fedY*100));
 	}
 }

@@ -106,16 +106,16 @@ public class Molecule : MonoBehaviour {
 				aTypeMod = 0.7f * atom2script.atomBorder.wiggle;
 			}
 			Vector3 BondAnchor2 = atom2.transform.position - tempLine * GameManager.instance.bondXmod*aTypeMod;
-			BondAnchor1.z -= 1;
-			BondAnchor2.z -= 1;
+			BondAnchor1.z -= 3;
+			BondAnchor2.z -= 3;
 
 			rengine.SetPositions (new Vector3[] { BondAnchor1, BondAnchor2});
 		}
 	}
 
 	public void updateColor() {
-		atom1.transform.GetChild(0).transform.GetComponent<LineRenderer>().material.SetColor("_EmissionColor",GameManager.instance.gmColorList [playerOwner + 2]);
-		atom2.transform.GetChild(0).transform.GetComponent<LineRenderer> ().material.SetColor("_EmissionColor",GameManager.instance.gmColorList [playerOwner + 2]);
+		atom1.transform.GetChild(0).transform.GetComponent<LineRenderer>().material.SetColor("_Color",GameManager.instance.gmColorList [playerOwner + 2]);
+		atom2.transform.GetChild(0).transform.GetComponent<LineRenderer> ().material.SetColor("_Color",GameManager.instance.gmColorList [playerOwner + 2]);
 	}
 
 	public void setAtoms() {
@@ -153,18 +153,19 @@ public class Molecule : MonoBehaviour {
 		GameManager.instance.breakBondParticle.Emit (30); 
 
 		rengine.SetPositions (new Vector3[] {new Vector3 (0,0,0),new Vector3 (0,0,0)});
-		GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.match);
+		GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.match, 0.6f);
 		float scrubTime = 0;
 		float totalCurveArea = 0;
 		float totalCurveProgress = 0;
 		float progress = 0f;
 		float yBump = 2f;
 		float amplitude = 1f;
-		float atomMoveTime = 1.5f;
+		float atomMoveTime = 1.25f;
 		//get total curve area
 		//totalCurveArea = 1f;
 		totalCurveArea = (1/ (Mathf.PI * 2))* ((Mathf.PI * 2*(yBump*amplitude) + Mathf.Sin (Mathf.PI * 2)*amplitude));
 		yield return new WaitForSeconds (2);
+		GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.moveSwoosh, 0.5f);
 		while (scrubTime <= 1) {
 			scrubTime += Time.deltaTime/atomMoveTime;
 			float curveAdd = (Time.deltaTime/atomMoveTime) * amplitude*((Mathf.Cos (scrubTime*360*Mathf.Deg2Rad) + yBump));
@@ -188,14 +189,17 @@ public class Molecule : MonoBehaviour {
 	}
 
 	public void reactFizzle() {
+		gameObject.GetComponent<Rigidbody2D> ().isKinematic = true;
 		GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.match);
 		isReacting = true;
 		rengine.SetPositions (new Vector3[] {new Vector3 (0,0,0),new Vector3 (0,0,0)});
-		Invoke ("fizzleResolve", 0.5f);
+		Invoke ("fizzleResolve", 4.0f);
 	}
 
 	public void fizzleResolve() {
+		gameObject.GetComponent<Rigidbody2D> ().isKinematic = false;
 		GameManager.instance.finish();
+		isReacting = false;
 		molSpeaker.clip = GameManager.instance.fizzle;
 		molSpeaker.PlayOneShot (GameManager.instance.fizzle);
 	}
