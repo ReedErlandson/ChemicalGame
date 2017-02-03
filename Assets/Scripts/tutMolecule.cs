@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class tutMolecule : MonoBehaviour {
 	public int playerOwner;
 	public bool isReacting;

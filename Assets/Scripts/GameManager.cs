@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using LoLSDK;
+using LoLSDK; 
 
 public class GameManager : MonoBehaviour {
 	int lolProgress = 4;

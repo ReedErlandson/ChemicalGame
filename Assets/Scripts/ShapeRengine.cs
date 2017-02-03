@@ -37,7 +37,6 @@ public class ShapeRengine : MonoBehaviour {
 		for (int i = 0; i < pushList.Length; i++) {
 			pushList [i].z += zOffset;
 		}
-
 		Renderer.numPositions = pushList.Length;
 		Renderer.SetPositions (pushList);
 	}

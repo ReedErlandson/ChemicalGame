@@ -6,8 +6,8 @@ using LoLSDK;
 public class TitleCode : MonoBehaviour {
 
 	// Use this for initialization
-	void Start () {
-		LOLSDK.Init ("com.topstitchGames.parity");
+	void Awake () {
+		LOLSDK.Init ("com.ReedErlandson.Parity");
 		LOLSDK.Instance.SubmitProgress(0, 0, 14);
 		LOLSDK.Instance.PlaySound ("EnergyMove.mp3");
 	}

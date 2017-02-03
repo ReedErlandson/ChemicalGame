@@ -1,7 +1,7 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChemicalGame", "Assembly-CSharp.csproj", "{D8BB8A51-2C60-9C6C-F0C5-CCFD83C65AA4}"
+# Visual Studio 2008
+
+Project("{379EFA2C-7EA4-D706-EE5B-8E2B64BE340E}") = "ChemicalGame", "Assembly-CSharp.csproj", "{D8BB8A51-2C60-9C6C-F0C5-CCFD83C65AA4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
