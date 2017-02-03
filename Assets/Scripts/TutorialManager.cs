@@ -78,8 +78,9 @@ public class TutorialManager : MonoBehaviour {
 		changeText("Hello, Doctors! Welcome to the lab. We’ll get right to it — I’m sure you’re both eager to start.");
 		Invoke ("stage1", 8f);
 		dragLineRenMat.SetColor("_Color", gmColorList [currentPlayer + 2]);
-		//lolprogress
+		//lolprogress & lolsound
 		LOLSDK.Instance.SubmitProgress(0, 1, 14);
+		LOLSDK.Instance.PlaySound ("Chatter_1.mp3", true, true);
 	}
 	
 	// Update is called once per frame
@@ -98,8 +99,9 @@ public class TutorialManager : MonoBehaviour {
 		}
 
 		if (Input.GetMouseButtonUp (0)) {
-			if (Vector3.Distance (clickStartPos, clickEndPos) >= minDragDist && turnReady && reactionMoleculeList.Count==reactionTarget) {
-				Debug.Log ("ye");
+			if (Vector3.Distance (clickStartPos, clickEndPos) < minDragDist) {
+				LOLSDK.Instance.PlaySound ("Fail.mp3");
+			} else if (turnReady && reactionMoleculeList.Count==reactionTarget) {
 				catalyseReaction ();
 				turnReady = false;
 			}
@@ -258,13 +260,15 @@ public class TutorialManager : MonoBehaviour {
 	}
 
 	IEnumerator changeTextCoroutine(string text){
-		chatterSpeaker.volume = 1f;
+		//chatterSpeaker.volume = 1f;
+		LOLSDK.Instance.ConfigureSound(1, 1, 1);
 		for (int i = 0; i < text.Length; i++) {
 			tuText.text = text.Substring (0, i);
 			yield return new WaitForSeconds(.04f);
 		}
 		tuText.text = text;
-		chatterSpeaker.volume = 0;
+		//chatterSpeaker.volume = 0;
+		LOLSDK.Instance.ConfigureSound(1, 0, 0);
 	}
 
 	public void changeTuPhase() {
@@ -288,7 +292,7 @@ public class TutorialManager : MonoBehaviour {
 			tuPhase = 7;
 			Invoke ("changeTuPhase", 6f);
 		} else if (tuPhase == 7) {
-			changeText("That was an ENDOTHERMIC REACTION, so the molecules drank up that energy you released earlier! Of course—because energy is never created or destroyed, it’s always just getting shuffled around.");
+			changeText("That was an ENDOTHERMIC REACTION, so the molecules drank up the energy you released earlier! Of course—because energy is never created or destroyed, it’s always just getting shuffled around.");
 			tuPhase = 8;
 			Invoke ("changeTuPhase", 12f);
 		} else if (tuPhase == 8) {
@@ -340,7 +344,7 @@ public class TutorialManager : MonoBehaviour {
 			redEnUI.text = "1";
 			blueEnUI.text = "2";
 			systemEnUI.text = "2";
-			Invoke ("changeTuPhase", 4f);
+			Invoke ("changeTuPhase", 5f);
 
 		} else if (tuPhase == 16) {
 			changeText("It shows how many energy points belong to Dr. Red");
@@ -364,7 +368,7 @@ public class TutorialManager : MonoBehaviour {
 			changeText("You two geniuses get to go head to head, causing all kinds of wild reactions until the turn timer runs out and I tally up who’s got the most stored energy.");
 			tuPhase = 14;
 			guiInd.gameObject.SetActive (false);
-			Invoke ("changeTuPhase", 8f);
+			Invoke ("changeTuPhase", 10f);
 		} else if (tuPhase == 14) {
 			changeText("STRATEGY! SKILL! EXCITING! Ready? LET’S DO IT!");
 			Invoke ("startGame", 4f);

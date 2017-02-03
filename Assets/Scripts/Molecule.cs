@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using LoLSDK;
 
 public class Molecule : MonoBehaviour {
 	public int playerOwner;
@@ -8,6 +9,7 @@ public class Molecule : MonoBehaviour {
 	public GameObject[] atomBlueprints;
 	public GameObject atom1;
 	public GameObject atom2;
+	public GameObject debuncher;
 
 	public Atom atom1script;
 	public Atom atom2script;
@@ -153,7 +155,8 @@ public class Molecule : MonoBehaviour {
 		GameManager.instance.breakBondParticle.Emit (30); 
 
 		rengine.SetPositions (new Vector3[] {new Vector3 (0,0,0),new Vector3 (0,0,0)});
-		GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.match, 0.6f);
+		//GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.match, 0.6f);
+		LOLSDK.Instance.PlaySound("Light.mp3");
 		float scrubTime = 0;
 		float totalCurveArea = 0;
 		float totalCurveProgress = 0;
@@ -165,7 +168,8 @@ public class Molecule : MonoBehaviour {
 		//totalCurveArea = 1f;
 		totalCurveArea = (1/ (Mathf.PI * 2))* ((Mathf.PI * 2*(yBump*amplitude) + Mathf.Sin (Mathf.PI * 2)*amplitude));
 		yield return new WaitForSeconds (2);
-		GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.moveSwoosh, 0.5f);
+		//GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.moveSwoosh, 0.5f);
+		LOLSDK.Instance.PlaySound("Move_Swoosh.mp3");
 		while (scrubTime <= 1) {
 			scrubTime += Time.deltaTime/atomMoveTime;
 			float curveAdd = (Time.deltaTime/atomMoveTime) * amplitude*((Mathf.Cos (scrubTime*360*Mathf.Deg2Rad) + yBump));
@@ -185,12 +189,14 @@ public class Molecule : MonoBehaviour {
 		//yield return new WaitForSeconds (0.5f);
 		//manager wrap
 		gameObject.GetComponent<Rigidbody2D> ().isKinematic = false;
+		LOLSDK.Instance.PlaySound("OK.mp3");
 		GameManager.instance.finish ();
 	}
 
 	public void reactFizzle() {
 		gameObject.GetComponent<Rigidbody2D> ().isKinematic = true;
-		GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.match);
+		//GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.match);
+		LOLSDK.Instance.PlaySound("Light.mp3");
 		isReacting = true;
 		rengine.SetPositions (new Vector3[] {new Vector3 (0,0,0),new Vector3 (0,0,0)});
 		Invoke ("fizzleResolve", 4.0f);
@@ -201,7 +207,28 @@ public class Molecule : MonoBehaviour {
 		GameManager.instance.finish();
 		isReacting = false;
 		molSpeaker.clip = GameManager.instance.fizzle;
-		molSpeaker.PlayOneShot (GameManager.instance.fizzle);
+		//molSpeaker.PlayOneShot (GameManager.instance.fizzle);
+		LOLSDK.Instance.PlaySound("Fizzle.mp3");
+	}
+
+	public void debunchTrigger() {
+		StartCoroutine ("molDebunch");
+	}
+
+	public IEnumerator molDebunch() {
+		float startTime = 0f;
+		float totalTime = 1.5f;
+		float startSize = 0.5f;
+		float maxSize = 2f;
+		debuncher.SetActive (true);
+		startTime = Time.time;
+		/*while (Time.time < startTime+totalTime) {
+			debuncher.transform.localScale = Vector3.Lerp (new Vector3(startSize,startSize,1), new Vector3(maxSize,maxSize,1),(Time.time-startTime)/totalTime);
+			yield return null;
+		}*/
+		debuncher.transform.localScale = new Vector3 (2f,2f,1f);
+		yield return new WaitForSeconds (2f);
+		debuncher.SetActive (false);
 	}
 
 }

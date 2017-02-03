@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using LoLSDK;
 
 
 public class tutMolecule : MonoBehaviour {
@@ -119,7 +120,8 @@ public class tutMolecule : MonoBehaviour {
 		TutorialManager.instance.breakBondParticle.Emit (30); 
 
 		rengine.SetPositions (new Vector3[] {new Vector3 (0,0,0),new Vector3 (0,0,0)});
-		TutorialManager.instance.managerSpeaker.PlayOneShot (TutorialManager.instance.match);
+		//TutorialManager.instance.managerSpeaker.PlayOneShot (TutorialManager.instance.match);
+		LOLSDK.Instance.PlaySound("Light.mp3");
 		float scrubTime = 0;
 		float totalCurveArea = 0;
 		float totalCurveProgress = 0;
@@ -131,7 +133,8 @@ public class tutMolecule : MonoBehaviour {
 		//totalCurveArea = 1f;
 		totalCurveArea = (1/ (Mathf.PI * 2))* ((Mathf.PI * 2*(yBump*amplitude) + Mathf.Sin (Mathf.PI * 2)*amplitude));
 		yield return new WaitForSeconds (2);
-		TutorialManager.instance.managerSpeaker.PlayOneShot (TutorialManager.instance.moveSwoosh, 0.5f);
+		//TutorialManager.instance.managerSpeaker.PlayOneShot (TutorialManager.instance.moveSwoosh, 0.5f);
+		LOLSDK.Instance.PlaySound("Move_Swoosh.mp3");
 		while (scrubTime <= 1) {
 			scrubTime += Time.deltaTime/atomMoveTime;
 			float curveAdd = (Time.deltaTime/atomMoveTime) * amplitude*((Mathf.Cos (scrubTime*360*Mathf.Deg2Rad) + yBump));
@@ -152,19 +155,24 @@ public class tutMolecule : MonoBehaviour {
 		//manager wrap
 		gameObject.GetComponent<Rigidbody2D> ().isKinematic = false;
 		TutorialManager.instance.finish ();
+		LOLSDK.Instance.PlaySound("OK.mp3");
 	}
 
 	public void reactFizzle() {
-		TutorialManager.instance.managerSpeaker.PlayOneShot (TutorialManager.instance.match);
+		//TutorialManager.instance.managerSpeaker.PlayOneShot (TutorialManager.instance.match);
+		gameObject.GetComponent<Rigidbody2D> ().isKinematic = true;
+		LOLSDK.Instance.PlaySound("Light.mp3");
 		isReacting = true;
 		rengine.SetPositions (new Vector3[] {new Vector3 (0,0,0),new Vector3 (0,0,0)});
-		Invoke ("fizzleResolve", 0.5f);
+		Invoke ("fizzleResolve", 4f);
 	}
 
 	public void fizzleResolve() {
 		TutorialManager.instance.finish();
+		gameObject.GetComponent<Rigidbody2D> ().isKinematic = false;
 		molSpeaker.clip = TutorialManager.instance.fizzle;
-		molSpeaker.PlayOneShot (TutorialManager.instance.fizzle);
+		//molSpeaker.PlayOneShot (TutorialManager.instance.fizzle);
+		LOLSDK.Instance.PlaySound("Fizzle.mp3");
 	}
 
 }

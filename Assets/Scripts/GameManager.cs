@@ -33,14 +33,15 @@ public class GameManager : MonoBehaviour {
 
 	public Shake camShaker;
 
-	public TextMesh systemEnUI;
-	public TextMesh redEnUI;
-	public TextMesh blueEnUI;
+	public Text systemEnUI;
+	public Text redEnUI;
+	public Text blueEnUI;
 	public int blueEnergy;
 	public int redEnergy;
 	public int systemDisplayEnergy;
 	public Image timerImage;
 	public Image menuBG;
+	public Text turnCountdown;
 	public Text winHeader;
 	public Button resetBtn;
 	public Color[] timerColors;
@@ -79,6 +80,7 @@ public class GameManager : MonoBehaviour {
 	public ParticleSystem breakBondParticle;
 	// Use this for initialization
 	void Start () {
+		LOLSDK.Init ("com.ReedErlandson.Parity");
 		instance = this;
 		resetBtn.gameObject.SetActive (false);
 		energyObjList = new List<GameObject> ();
@@ -109,7 +111,9 @@ public class GameManager : MonoBehaviour {
 		}
 
 		if (Input.GetMouseButtonUp (0)) {
-			if (Vector3.Distance (clickStartPos, clickEndPos) >= minDragDist && turnReady) {
+			if (Vector3.Distance (clickStartPos, clickEndPos) < minDragDist) {
+				LOLSDK.Instance.PlaySound ("Fail.mp3");
+			} else if (Vector3.Distance (clickStartPos, clickEndPos) >= minDragDist && turnReady) {
 				catalyseReaction ();
 				turnReady = false;
 			}
@@ -125,6 +129,7 @@ public class GameManager : MonoBehaviour {
 	public void timeTurn() {
 		if (turnActive) {
 			timerImage.color = bgSprite.color + timerColors[currentPlayer];
+			turnCountdown.color = bgSprite.color + timerColors[currentPlayer] + new Color (0.05f, 0.05f, 0.05f);
 
 			turnCurrentTime = (Time.time - turnStartTime) / turnLength;
 			if (turnCurrentTime >= 1) {
@@ -134,6 +139,7 @@ public class GameManager : MonoBehaviour {
 			}
 		} else {
 			timerImage.color = bgSprite.color + new Color (0.02f, 0.02f, 0.02f, 1);
+			turnCountdown.color = new Color (0,0,0,0);
 		}
 	}
 
@@ -171,6 +177,7 @@ public class GameManager : MonoBehaviour {
 		redEnUI.text = redEnergy.ToString();
 		blueEnUI.text = blueEnergy.ToString();
 		systemEnUI.text = (systemEnergy+systemDisplayEnergy).ToString();
+		turnCountdown.text = (gameLength - gameStage).ToString();
 		timerImage.fillAmount = 1-turnCurrentTime;
 	}
 
@@ -188,10 +195,14 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void moveEnergy() {
-		managerSpeaker.PlayOneShot (engMove);
+		//managerSpeaker.PlayOneShot (engMove);
+		LOLSDK.Instance.PlaySound("EnergyMove.mp3");
 		camShaker.shake (2f, 2f);
 		foreach (GameObject aEn in energyObjList) {
 			aEn.GetComponent<Energy>().shakeMove();
+		}
+		foreach (GameObject aMol in moleculeList) {
+			aMol.GetComponent<Molecule>().debunchTrigger ();
 		}
 	}
 
@@ -391,9 +402,11 @@ public class GameManager : MonoBehaviour {
 	public void endMatch() {
 		turnActive = false;
 		turnReady = false;
-		redEnUI.gameObject.SetActive (false);
-		blueEnUI.gameObject.SetActive (false);
+		//redEnUI.gameObject.SetActive (false);
+		//blueEnUI.gameObject.SetActive (false);
+		redEnUI.rectTransform.position = new Vector3 (0f,40f,-580f);
 		systemEnUI.gameObject.SetActive (false);
+		turnCountdown.gameObject.SetActive (false);
 
 		if (redEnergy>blueEnergy) {
 			winHeader.text = "RED PLAYER WINS!";
@@ -414,6 +427,9 @@ public class GameManager : MonoBehaviour {
 		float fadeTime = 1f;
 		float targetTime = Time.time + fadeTime;
 		resetBtn.gameObject.SetActive (true);
+		foreach (GameObject aMol in moleculeList) {
+			aMol.SetActive (false);
+		}
 		foreach (GameObject anEn in energyObjList) {
 			Destroy (anEn);
 		}

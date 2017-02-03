@@ -40,8 +40,8 @@ public class Energy : MonoBehaviour {
 		float xRoll = 0f;
 		float yRoll = 0f;
 		while (xRoll == 0f || yRoll == 0f) {
-			xRoll = Random.Range (-1f, 2f);
-			yRoll = Random.Range (-1f, 2f);
+			xRoll = Random.Range(-1,2);
+			yRoll = Random.Range(-1,2);
 		}
 		this.GetComponent<Rigidbody2D> ().AddForce (new Vector2 (xRoll*GameManager.instance.baseMotion*GameManager.instance.motionMultiplier*GameManager.instance.systemEnergy, yRoll*GameManager.instance.baseMotion*GameManager.instance.motionMultiplier*GameManager.instance.systemEnergy));
 	}
