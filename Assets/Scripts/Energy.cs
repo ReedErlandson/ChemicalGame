@@ -6,10 +6,6 @@ public class Energy : MonoBehaviour {
 	public bool isReacting = false;
 	public bool isTutEng = false;
 
-	void Update() {
-		transform.Translate (Random.insideUnitCircle *Time.deltaTime/10);
-	}
-
 	public void endoMove(Vector3 targetPos) {
 		StartCoroutine (endoCo (targetPos));
 	}
@@ -28,10 +24,10 @@ public class Energy : MonoBehaviour {
 		this.GetComponent<Rigidbody2D> ().isKinematic = false;
 		if (!isTutEng) {
 			GameManager.instance.energyObjList.Remove (this.gameObject);
-			GameObject newParticle = Instantiate (GameManager.instance.energyParticle, targetPos, Quaternion.identity) as GameObject;
+			//GameObject newParticle = Instantiate (GameManager.instance.energyParticle, targetPos, Quaternion.identity) as GameObject;
 		} else {
 			TutorialManager.instance.energyObjList.Remove (this.gameObject);
-			GameObject newParticle = Instantiate (TutorialManager.instance.energyParticle, targetPos, Quaternion.identity) as GameObject;
+			//GameObject newParticle = Instantiate (TutorialManager.instance.energyParticle, targetPos, Quaternion.identity) as GameObject;
 		}
 		Destroy (this.gameObject);
 	}

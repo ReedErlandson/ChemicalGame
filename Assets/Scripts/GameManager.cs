@@ -8,6 +8,9 @@ using LoLSDK;
 
 public class GameManager : MonoBehaviour {
 	int lolProgress = 4;
+	bool isDrawing = false;
+	Color winnerColor;
+	public Color[] winColorAr;
 
 	public static GameManager instance;
 	public Material dragLineRenMat;
@@ -80,7 +83,13 @@ public class GameManager : MonoBehaviour {
 	public ParticleSystem breakBondParticle;
 	// Use this for initialization
 	void Start () {
-		LOLSDK.Init ("com.ReedErlandson.Parity");
+		if (!LOLSDK.Instance.IsInitialized) {
+			LOLSDK.Init ("com.ReedErlandson.Parity");
+		}
+		LOLSDK.Instance.ConfigureSound(1, 1, 0.7f);
+		LOLSDK.Instance.StopSound("Chatter_1.mp3");
+		LOLSDK.Instance.PlaySound ("atmosphere.mp3",true,true);
+
 		instance = this;
 		resetBtn.gameObject.SetActive (false);
 		energyObjList = new List<GameObject> ();
@@ -93,12 +102,19 @@ public class GameManager : MonoBehaviour {
 		for (int i = 0; i < startingMolecules; i++) {
 			spawnMolecule ();
 		}
+		//set bg
+		bgSprite.color = Color.Lerp (gmColorList[0],gmColorList[1],systemEnergy/(startingMolecules*2f));
 	}
 
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetMouseButtonDown (0) && turnReady) {
-			clickStartPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		if (Input.GetMouseButtonDown (0) && turnReady && !isDrawing || Input.touchCount>0 && turnReady && !isDrawing) {
+			if (Input.touchCount > 0) { //touch one
+				clickStartPos = Camera.main.ScreenToWorldPoint (Input.GetTouch(0).position);
+				isDrawing = true;
+			} else {
+				clickStartPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+			}
 			clickStartPos.z = -4;
 			GameObject newTouchInd = Instantiate (touchInd, clickStartPos, Quaternion.identity) as GameObject;
 			newTouchInd.transform.position = new Vector3 (newTouchInd.transform.position.x, newTouchInd.transform.position.y, -3);
@@ -106,11 +122,11 @@ public class GameManager : MonoBehaviour {
 			currentTouchInd = newTouchInd;
 		}
 
-		if (Input.GetMouseButton (0) && turnReady) {
+		if (Input.GetMouseButton (0) && turnReady || Input.touchCount>0 && turnReady) {
 			drawLine ();
 		}
 
-		if (Input.GetMouseButtonUp (0)) {
+		if (Input.GetMouseButtonUp (0) || Input.touchCount<1 && isDrawing) {
 			if (Vector3.Distance (clickStartPos, clickEndPos) < minDragDist) {
 				LOLSDK.Instance.PlaySound ("Fail.mp3");
 			} else if (Vector3.Distance (clickStartPos, clickEndPos) >= minDragDist && turnReady) {
@@ -119,11 +135,10 @@ public class GameManager : MonoBehaviour {
 			}
 			touchRengine.SetPositions (new Vector3[] { new Vector3 (0, 0), new Vector3 (0, 0) });
 			Destroy (currentTouchInd);
+			isDrawing = false;
 		}
-
-		bgSprite.color = Color.Lerp (gmColorList[0],gmColorList[1],systemEnergy/(startingMolecules*2f));
+			
 		timeTurn ();
-		updateHud ();
 	}
 
 	public void timeTurn() {
@@ -141,6 +156,8 @@ public class GameManager : MonoBehaviour {
 			timerImage.color = bgSprite.color + new Color (0.02f, 0.02f, 0.02f, 1);
 			turnCountdown.color = new Color (0,0,0,0);
 		}
+		//updateImg
+		timerImage.fillAmount = 1-turnCurrentTime;
 	}
 
 	void turnFlag() {
@@ -174,11 +191,11 @@ public class GameManager : MonoBehaviour {
 				systemDisplayEnergy += enVal;
 			}
 		}
+		bgSprite.color = Color.Lerp (gmColorList[0],gmColorList[1],systemEnergy/(startingMolecules*2f));
 		redEnUI.text = redEnergy.ToString();
 		blueEnUI.text = blueEnergy.ToString();
 		systemEnUI.text = (systemEnergy+systemDisplayEnergy).ToString();
 		turnCountdown.text = (gameLength - gameStage).ToString();
-		timerImage.fillAmount = 1-turnCurrentTime;
 	}
 
 	void spawnMolecule() {
@@ -197,7 +214,7 @@ public class GameManager : MonoBehaviour {
 	void moveEnergy() {
 		//managerSpeaker.PlayOneShot (engMove);
 		LOLSDK.Instance.PlaySound("EnergyMove.mp3");
-		camShaker.shake (2f, 2f);
+		//camShaker.shake (2f, 2f);
 		foreach (GameObject aEn in energyObjList) {
 			aEn.GetComponent<Energy>().shakeMove();
 		}
@@ -207,7 +224,11 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void drawLine() {
-		clickEndPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+		if (Input.touchCount > 0) {
+			clickEndPos = Camera.main.ScreenToWorldPoint (Input.GetTouch(0).position);
+		} else {
+			clickEndPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+		}
 		clickEndPos.z = -4;
 		RaycastHit2D rengineCollision = Physics2D.Linecast (clickStartPos,clickEndPos,drawCollisionMask.value);
 		if (rengineCollision.collider != null) {
@@ -225,35 +246,35 @@ public class GameManager : MonoBehaviour {
 		}
 		touchRengine.SetPositions (touchRenArr);
 	}
-	IEnumerator fadeIn(){
+	void fadeIn(){
 		fade.enabled = true;
-		float t = 0; 
+		Color full = new Color (0, 0, 0, 1);
+		/*float t = 0; 
 		Color empty = new Color (0, 0, 0, 0);
-		Color full = new Color (0, 0, 0, .75f);
 		while (t < 1) {
 			t += Time.deltaTime*3;
 			fade.color = Color.Lerp (empty,full, t);
 			yield return null;
-		}
+		}*/
 		fade.color = full;
 	}
 
-	IEnumerator fadeOut(){
+	void fadeOut(){
 		fade.enabled = true;
-		float t = 0; 
 		Color empty = new Color (0, 0, 0, 0);
-		Color full = new Color (0, 0, 0, .8f);
+		/*Color full = new Color (0, 0, 0, .8f);
+		float t = 0; 
 		while (t < 1) {
 			t += Time.deltaTime*3;
 			fade.color = Color.Lerp (full,empty, t);
 			yield return null;
-		}
+		}*/
 		fade.color = empty;
 		fade.enabled = false;
 	}
 
 	void catalyseReaction() {
-		StartCoroutine (fadeIn ());
+		fadeIn ();
 		turnActive = false;
 		StartCoroutine ("fillTimer");
 		waitForMolecules = 0;
@@ -339,10 +360,11 @@ public class GameManager : MonoBehaviour {
 		if (waitForMolecules <= 0) {
 			foreach (Molecule aMol in reactionMoleculeList) {
 				aMol.isReacting = false;
+				aMol.updateRengine ();
 				aMol.transform.position += new Vector3 (0, 0, 6);
 			}
 			Invoke ("changePlayer", 0.5f);
-			StartCoroutine(fadeOut ());
+			fadeOut ();
 		}
 	}
 
@@ -364,6 +386,7 @@ public class GameManager : MonoBehaviour {
 		if (lolProgress < 15) {
 			LOLSDK.Instance.SubmitProgress (0, lolProgress, 14);
 		}
+		updateHud ();
 	}
 
 	public void startTimer() {
@@ -393,7 +416,7 @@ public class GameManager : MonoBehaviour {
 			bestEn.GetComponent<Energy>().endoMove(fedPos);
 		} else if (!isEndo) {
 			GameObject newEnergy = Instantiate (energyObj,fedPos,Quaternion.identity) as GameObject;
-			GameObject newParticle = Instantiate (GameManager.instance.energyParticle, fedPos, Quaternion.identity) as GameObject;
+			//GameObject newParticle = Instantiate (GameManager.instance.energyParticle, fedPos, Quaternion.identity) as GameObject;
 			energyObjList.Add (newEnergy);
 			newEnergy.GetComponent<Energy> ().shakeMove ();
 		}
@@ -404,16 +427,24 @@ public class GameManager : MonoBehaviour {
 		turnReady = false;
 		//redEnUI.gameObject.SetActive (false);
 		//blueEnUI.gameObject.SetActive (false);
-		redEnUI.rectTransform.position = new Vector3 (0f,40f,-580f);
-		systemEnUI.gameObject.SetActive (false);
+		//systemEnUI.gameObject.SetActive (false);
+		redEnUI.GetComponent<RectTransform>().anchoredPosition3D = new Vector3(-320f,25f,-581f);
+		blueEnUI.GetComponent<RectTransform>().anchoredPosition3D = new Vector3(320f,25f,-581f);
+		systemEnUI.GetComponent<RectTransform>().anchoredPosition3D = new Vector3(0f,25f,-581f);
+		redEnUI.fontSize = 60;
+		blueEnUI.fontSize = 60;
+		systemEnUI.fontSize = 60;
 		turnCountdown.gameObject.SetActive (false);
 
 		if (redEnergy>blueEnergy) {
 			winHeader.text = "RED PLAYER WINS!";
+			winnerColor = winColorAr [0];
 		} else if (blueEnergy>redEnergy) {
 			winHeader.text = "BLUE PLAYER WINS!";
+			winnerColor = winColorAr [1];
 		} else {
 			winHeader.text = "TIE GAME!";
+			winnerColor = Color.white;
 		}
 		StartCoroutine ("menuFadeIn");
 	}
@@ -433,12 +464,14 @@ public class GameManager : MonoBehaviour {
 		foreach (GameObject anEn in energyObjList) {
 			Destroy (anEn);
 		}
-		while (Time.time<targetTime) {
-			menuBG.color = Color.Lerp (Color.white, new Color (255,255,255,0), (targetTime-Time.time)/fadeTime);
-			winHeader.color = Color.Lerp (Color.black, new Color (0,0,0,0), (targetTime-Time.time)/fadeTime);
+		float t = 0;
+		while (t < 1) {
+			t += Time.deltaTime;
+			menuBG.color = Color.Lerp (winnerColor, new Color (1f,1f,1f,0), 1-t) ;
+			winHeader.color = Color.Lerp (Color.black, new Color (0,0,0,0), 1-t);
 			yield return null;
 		}
-		menuBG.color = Color.white;
+		menuBG.color = winnerColor;
 		winHeader.color = Color.black;
 	}
 }

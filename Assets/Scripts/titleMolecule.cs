@@ -73,8 +73,8 @@ public class titleMolecule : MonoBehaviour {
 				aTypeMod = 0.7f * atom2script.atomBorder.wiggle;
 			}
 			Vector3 BondAnchor2 = atom2.transform.position - tempLine * 0.4f*aTypeMod;
-			BondAnchor1.z -= 3;
-			BondAnchor2.z -= 3;
+			BondAnchor1.z -= 2f;
+			BondAnchor2.z -= 2f;
 
 			rengine.SetPositions (new Vector3[] { BondAnchor1, BondAnchor2});
 		}
@@ -117,7 +117,7 @@ public class titleMolecule : MonoBehaviour {
 		TutorialManager.instance.breakBondParticle.transform.rotation = transform.rotation;
 		ParticleSystem.ShapeModule shape = TutorialManager.instance.breakBondParticle.shape;
 		shape.box = new Vector3 (lineCollider.size.x, .1f, 0);
-		TutorialManager.instance.breakBondParticle.Emit (30); 
+		TutorialManager.instance.breakBondParticle.Emit (5); 
 
 		rengine.SetPositions (new Vector3[] {new Vector3 (0,0,0),new Vector3 (0,0,0)});
 		//TutorialManager.instance.managerSpeaker.PlayOneShot (TutorialManager.instance.match);

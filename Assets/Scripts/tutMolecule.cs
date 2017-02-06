@@ -29,11 +29,9 @@ public class tutMolecule : MonoBehaviour {
 		lineCollider.size = new Vector2 (gameObject.transform.localScale.x,gameObject.transform.localScale.y*0.75f);
 		colorArray = new Color[]{Color.blue,Color.red};
 		isReacting = false;
-	}
-
-	// Update is called once per frame
-	void Update () {
 		updateRengine();
+		//setRengine color
+		rengine.material.SetColor ("_Color", Color.white);
 	}
 
 	public void controlledSpawn(int fedOwner, GameObject fedA1obj, GameObject fedA2obj) {
@@ -58,11 +56,9 @@ public class tutMolecule : MonoBehaviour {
 		atom2.GetComponent<CircleCollider2D> ().radius = 0.5f;
 	}
 
-	void updateRengine() {
+	public void updateRengine() {
 		if (!isReacting) {
-			rengine.material.SetColor ("_Color", Color.white);
-			rengine.material.SetColor ("_EmissionColor", Color.white);
-			Vector3 tempLine = Vector3.Normalize(atom2.transform.position - atom1.transform.position);
+			/*Vector3 tempLine = Vector3.Normalize(atom2.transform.position - atom1.transform.position);
 			float aTypeMod = 1f * atom1script.atomBorder.wiggle;
 			if (atom1script.atomType == 1) {
 				aTypeMod = 0.7f * atom1script.atomBorder.wiggle;
@@ -73,10 +69,10 @@ public class tutMolecule : MonoBehaviour {
 				aTypeMod = 0.7f * atom2script.atomBorder.wiggle;
 			}
 			Vector3 BondAnchor2 = atom2.transform.position - tempLine * TutorialManager.instance.bondXmod*aTypeMod;
-			BondAnchor1.z -= 3;
-			BondAnchor2.z -= 3;
+			BondAnchor1.z -= 2;
+			BondAnchor2.z -= 2;*/
 
-			rengine.SetPositions (new Vector3[] { BondAnchor1, BondAnchor2});
+			rengine.SetPositions (new Vector3[] { new Vector3(-0.7f,0,-2), new Vector3(0.7f,0,-2)});
 		}
 	}
 
@@ -112,12 +108,13 @@ public class tutMolecule : MonoBehaviour {
 			TutorialManager.instance.resolveEnergy (this.transform.position, false);
 		}
 		isReacting = true;
+		updateRengine();
 
 		TutorialManager.instance.breakBondParticle.transform.position = transform.position;
 		TutorialManager.instance.breakBondParticle.transform.rotation = transform.rotation;
 		ParticleSystem.ShapeModule shape = TutorialManager.instance.breakBondParticle.shape;
 		shape.box = new Vector3 (lineCollider.size.x, .1f, 0);
-		TutorialManager.instance.breakBondParticle.Emit (30); 
+		TutorialManager.instance.breakBondParticle.Emit (5); 
 
 		rengine.SetPositions (new Vector3[] {new Vector3 (0,0,0),new Vector3 (0,0,0)});
 		//TutorialManager.instance.managerSpeaker.PlayOneShot (TutorialManager.instance.match);

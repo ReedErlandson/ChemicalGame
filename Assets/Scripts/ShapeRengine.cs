@@ -40,7 +40,7 @@ public class ShapeRengine : MonoBehaviour {
 		Renderer.numPositions = pushList.Length;
 		Renderer.SetPositions (pushList);
 	}
-	
+	/*
 	// Update is called once per frame
 	void Update () {
 		Vector3[] newlist = new Vector3[pushList.Length];
@@ -52,6 +52,6 @@ public class ShapeRengine : MonoBehaviour {
 		Renderer.SetPositions (newlist);
 	
 	}
-		
+	*/	
 
 }

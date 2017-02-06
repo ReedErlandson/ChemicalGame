@@ -9,7 +9,7 @@ public class Molecule : MonoBehaviour {
 	public GameObject[] atomBlueprints;
 	public GameObject atom1;
 	public GameObject atom2;
-	public GameObject debuncher;
+	public Collider2D debuncher;
 
 	public Atom atom1script;
 	public Atom atom2script;
@@ -17,7 +17,7 @@ public class Molecule : MonoBehaviour {
 	BoxCollider2D lineCollider;
 	public LineRenderer rengine;
 	Color[] colorArray;
-	public AudioSource molSpeaker;
+	//public AudioSource molSpeaker;
 
 	// Use this for initialization
 	void Start () {
@@ -33,11 +33,9 @@ public class Molecule : MonoBehaviour {
 		populate ();
 		isReacting = false;
 		updateColor ();
-	}
-
-	// Update is called once per frame
-	void Update () {
-		updateRengine();
+		updateRengine ();
+		//setRengineColors
+		rengine.material.SetColor ("_Color", Color.white);
 	}
 
 	public void randomSpawn() {
@@ -93,11 +91,9 @@ public class Molecule : MonoBehaviour {
 		atom2.GetComponent<CircleCollider2D> ().radius = 0.5f;
 	}
 
-	void updateRengine() {
+	public void updateRengine() {
 		if (!isReacting) {
-			rengine.material.SetColor ("_Color", Color.white);
-			rengine.material.SetColor ("_EmissionColor", Color.white);
-			Vector3 tempLine = Vector3.Normalize(atom2.transform.position - atom1.transform.position);
+			/*Vector3 tempLine = Vector3.Normalize(atom2.transform.position - atom1.transform.position);
 			float aTypeMod = 1f * atom1script.atomBorder.wiggle;
 			if (atom1script.atomType == 1) {
 				aTypeMod = 0.7f * atom1script.atomBorder.wiggle;
@@ -108,10 +104,10 @@ public class Molecule : MonoBehaviour {
 				aTypeMod = 0.7f * atom2script.atomBorder.wiggle;
 			}
 			Vector3 BondAnchor2 = atom2.transform.position - tempLine * GameManager.instance.bondXmod*aTypeMod;
-			BondAnchor1.z -= 3;
-			BondAnchor2.z -= 3;
+			BondAnchor1.z -= 2;
+			BondAnchor2.z -= 2;*/
 
-			rengine.SetPositions (new Vector3[] { BondAnchor1, BondAnchor2});
+			rengine.SetPositions (new Vector3[] { new Vector3(-0.7f,0,-2), new Vector3(0.7f,0,-2)});
 		}
 	}
 
@@ -147,12 +143,13 @@ public class Molecule : MonoBehaviour {
 			GameManager.instance.resolveEnergy (this.transform.position, false);
 		}
 		isReacting = true;
+		updateRengine ();
 
 		GameManager.instance.breakBondParticle.transform.position = transform.position;
 		GameManager.instance.breakBondParticle.transform.rotation = transform.rotation;
 		ParticleSystem.ShapeModule shape = GameManager.instance.breakBondParticle.shape;
 		shape.box = new Vector3 (lineCollider.size.x, .1f, 0);
-		GameManager.instance.breakBondParticle.Emit (30); 
+		GameManager.instance.breakBondParticle.Emit (5);
 
 		rengine.SetPositions (new Vector3[] {new Vector3 (0,0,0),new Vector3 (0,0,0)});
 		//GameManager.instance.managerSpeaker.PlayOneShot (GameManager.instance.match, 0.6f);
@@ -206,7 +203,8 @@ public class Molecule : MonoBehaviour {
 		gameObject.GetComponent<Rigidbody2D> ().isKinematic = false;
 		GameManager.instance.finish();
 		isReacting = false;
-		molSpeaker.clip = GameManager.instance.fizzle;
+		updateRengine ();
+		//molSpeaker.clip = GameManager.instance.fizzle;
 		//molSpeaker.PlayOneShot (GameManager.instance.fizzle);
 		LOLSDK.Instance.PlaySound("Fizzle.mp3");
 	}
@@ -220,7 +218,11 @@ public class Molecule : MonoBehaviour {
 		float totalTime = 1.5f;
 		float startSize = 0.5f;
 		float maxSize = 2f;
-		debuncher.SetActive (true);
+		Collider2D[] c = GetComponentsInChildren<Collider2D> ();
+		for (int i = 0; i < c.Length; i++) {
+			c [i].enabled = false;
+		}
+		debuncher.enabled = (true);
 		startTime = Time.time;
 		/*while (Time.time < startTime+totalTime) {
 			debuncher.transform.localScale = Vector3.Lerp (new Vector3(startSize,startSize,1), new Vector3(maxSize,maxSize,1),(Time.time-startTime)/totalTime);
@@ -228,7 +230,11 @@ public class Molecule : MonoBehaviour {
 		}*/
 		debuncher.transform.localScale = new Vector3 (2f,2f,1f);
 		yield return new WaitForSeconds (2f);
-		debuncher.SetActive (false);
+		for (int i = 0; i < c.Length; i++) {
+			c [i].enabled = true;
+		}
+		debuncher.enabled = (false);
+
 	}
 
 }

@@ -50,7 +50,6 @@
      <Compile Include="Assets\Scripts\Energy.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
      <Compile Include="Assets\Scripts\Molecule.cs" />
-     <Compile Include="Assets\Scripts\Particle.cs" />
      <Compile Include="Assets\Scripts\Shake.cs" />
      <Compile Include="Assets\Scripts\ShapeRengine.cs" />
      <Compile Include="Assets\Scripts\TutorialManager.cs" />

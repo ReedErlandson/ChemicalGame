@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 using LoLSDK;
 
 public class TutorialManager : MonoBehaviour {
+	bool isDrawing = false;
+
 	Vector3 clickStartPos;
 	Vector3 clickEndPos;
 	GameObject currentTouchInd;
@@ -69,6 +71,11 @@ public class TutorialManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		if (!LOLSDK.Instance.IsInitialized) {
+			LOLSDK.Init ("com.ReedErlandson.Parity");
+		}
+		LOLSDK.Instance.SubmitProgress(0, 1, 14);
+		LOLSDK.Instance.PlaySound ("Chatter_1.mp3", true, true);
 		instance = this;
 		reactionMoleculeList = new List<tutMolecule> ();
 		exoList = new List<tutMolecule> ();
@@ -79,14 +86,18 @@ public class TutorialManager : MonoBehaviour {
 		Invoke ("stage1", 8f);
 		dragLineRenMat.SetColor("_Color", gmColorList [currentPlayer + 2]);
 		//lolprogress & lolsound
-		LOLSDK.Instance.SubmitProgress(0, 1, 14);
-		LOLSDK.Instance.PlaySound ("Chatter_1.mp3", true, true);
+
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetMouseButtonDown (0) && turnReady) {
-			clickStartPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+		if (Input.GetMouseButtonDown (0) && turnReady && !isDrawing || Input.touchCount>0 && turnReady && !isDrawing) {
+			if (Input.touchCount > 0) { //touch one
+				clickStartPos = Camera.main.ScreenToWorldPoint (Input.GetTouch(0).position);
+				isDrawing = true;
+			} else {
+				clickStartPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+			}
 			clickStartPos.z = -4;
 			GameObject newTouchInd = Instantiate (touchInd, clickStartPos, Quaternion.identity) as GameObject;
 			newTouchInd.transform.position = new Vector3 (newTouchInd.transform.position.x, newTouchInd.transform.position.y, -3);
@@ -94,11 +105,11 @@ public class TutorialManager : MonoBehaviour {
 			currentTouchInd = newTouchInd;
 		}
 
-		if (Input.GetMouseButton (0) && turnReady) {
+		if (Input.GetMouseButton (0) && turnReady || Input.touchCount>0 && turnReady) {
 			drawLine ();
 		}
 
-		if (Input.GetMouseButtonUp (0)) {
+		if (Input.GetMouseButtonUp (0) || Input.touchCount<1 && isDrawing) {
 			if (Vector3.Distance (clickStartPos, clickEndPos) < minDragDist) {
 				LOLSDK.Instance.PlaySound ("Fail.mp3");
 			} else if (turnReady && reactionMoleculeList.Count==reactionTarget) {
@@ -107,6 +118,7 @@ public class TutorialManager : MonoBehaviour {
 			}
 			touchRengine.SetPositions (new Vector3[] { new Vector3 (0, 0), new Vector3 (0, 0) });
 			Destroy (currentTouchInd);
+			isDrawing = false;
 		}
 }
 		
@@ -135,7 +147,11 @@ public class TutorialManager : MonoBehaviour {
 	}
 
 	void drawLine() {
-		clickEndPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+		if (Input.touchCount > 0) {
+			clickEndPos = Camera.main.ScreenToWorldPoint (Input.GetTouch(0).position);
+		} else {
+			clickEndPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+		}
 		clickEndPos.z = -4;
 		RaycastHit2D rengineCollision = Physics2D.Linecast (clickStartPos,clickEndPos, drawCollisionMask.value);
 		if (rengineCollision.collider != null) {
@@ -238,6 +254,7 @@ public class TutorialManager : MonoBehaviour {
 		if (waitForMolecules <= 0) {
 			foreach (tutMolecule aMol in reactionMoleculeList) {
 				aMol.isReacting = false;
+				aMol.updateRengine();
 				aMol.transform.position += new Vector3 (0, 0, 6);
 			}
 			changePlayer ();
@@ -270,6 +287,7 @@ public class TutorialManager : MonoBehaviour {
 		//chatterSpeaker.volume = 0;
 		LOLSDK.Instance.ConfigureSound(1, 0, 0);
 	}
+
 
 	public void changeTuPhase() {
 		if (tuPhase == 2) {
@@ -438,7 +456,7 @@ public class TutorialManager : MonoBehaviour {
 			bestEn.GetComponent<Energy>().endoMove(fedPos);
 		} else if (!isEndo) {
 			GameObject newEnergy = Instantiate (energyObj,fedPos,Quaternion.identity) as GameObject;
-			GameObject newParticle = Instantiate (TutorialManager.instance.energyParticle, fedPos, Quaternion.identity) as GameObject;
+			//GameObject newParticle = Instantiate (TutorialManager.instance.energyParticle, fedPos, Quaternion.identity) as GameObject;
 			energyObjList.Add (newEnergy);
 			newEnergy.GetComponent<Energy> ().isTutEng = true;
 			newEnergy.GetComponent<Energy> ().controlledMove (1f,1f);

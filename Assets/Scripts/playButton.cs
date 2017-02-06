@@ -6,6 +6,6 @@ using UnityEngine.SceneManagement;
 public class playButton : MonoBehaviour {
 
 	public void loadTut() {
-		SceneManager.LoadScene ("Tutorial");
+		SceneManager.LoadScene ("Main");
 	}
 }
